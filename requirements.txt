@@ -3,7 +3,6 @@ pandas
 sentence_transformers
 fitz
 pathlib
-os
 flask
 flask-cors
 pdfplumber
