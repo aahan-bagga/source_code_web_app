@@ -1,8 +1,7 @@
 google-genai
 pandas
 sentence_transformers
-frontend
-fitz
+PyMuPDF
 pathlib
 flask
 flask-cors
