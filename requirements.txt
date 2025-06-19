@@ -2,7 +2,12 @@ google-genai
 pandas
 sentence_transformers
 fitz
-docx
 pathlib
 os
 flask
+flask-cors
+pdfplumber
+python-docx
+PyMuPDF
+torch
+google-generativeai
