@@ -7,6 +7,5 @@ flask
 flask-cors
 pdfplumber
 python-docx
-PyMuPDF
 torch
 google-generativeai
