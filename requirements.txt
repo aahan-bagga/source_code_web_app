@@ -1,6 +1,7 @@
 google-genai
 pandas
 sentence_transformers
+frontend
 fitz
 pathlib
 flask
