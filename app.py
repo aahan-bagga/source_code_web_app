@@ -138,6 +138,10 @@ Include the provided SBERT similarity score in your evaluation.
         "llm_assessment": response.text
     })
 
+@app.route('/')
+def home():
+    return 'Resume Fitment API is live!'
+
 # >>> CHANGED: Set host and port for Render compatibility
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
