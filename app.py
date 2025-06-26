@@ -138,6 +138,10 @@ Include the provided SBERT similarity score in your evaluation.
         "llm_assessment": response.text
     })
 
+@app.route("print_nothing", methods=['GET'])
+def print_nothing():
+    return "this was a get request known by print_nothing"
+
 @app.route('/')
 def home():
     return 'Resume Fitment API is live!'
