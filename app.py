@@ -16,7 +16,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # >>> MOVED: Model and API client initialization outside function so it’s reused
 model = SentenceTransformer("all-mpnet-base-v2")
-genai_client = genai.Client(api_key="GEMINI_API_KEY")  # >>> CHANGED: use a named client object instead of inline
+genai_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))  # >>> CHANGED: use a named client object instead of inline
 
 # >>> MOVED: this helper was unchanged
 def extract_docx(filepath):
