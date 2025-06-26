@@ -129,7 +129,7 @@ Include the provided SBERT similarity score in your evaluation.
     # >>> CHANGED: Use shared genai client to call Gemini
     response = genai_client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=[resume_part, prompt, jd_part]
+        contents=[resume_part, prompt2, jd_part]
     )
 
     # >>> CHANGED: Return proper API response as JSON
