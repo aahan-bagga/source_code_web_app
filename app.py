@@ -122,9 +122,8 @@ def score_resume():
 – Domain 1: reason  
 – Domain 2: reason
                
-Include the provided SBERT similarity score in your evaluation.
-               
-               """) + str(score)
+Include the provided SBERT similarity score in your evaluation. """ + str(score)
+)
 
     # >>> CHANGED: Use shared genai client to call Gemini
     response = genai_client.models.generate_content(
