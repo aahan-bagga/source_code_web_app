@@ -109,8 +109,6 @@ def score_resume():
 6. *Suggested Domains* (if selected)  
    – 2–3 IT service domains (e.g., BFSI, E‑Commerce) with 1-line reasoning each.
 
-Include the provided SBERT similarity score in your evaluation.
-
 ### Response Format:
 1. Fitment Score:  
 2. Selection:  
@@ -124,7 +122,9 @@ Include the provided SBERT similarity score in your evaluation.
 – Domain 1: reason  
 – Domain 2: reason
                
-               """)
+Include the provided SBERT similarity score in your evaluation.
+               
+               """) + str(score)
 
     # >>> CHANGED: Use shared genai client to call Gemini
     response = genai_client.models.generate_content(
