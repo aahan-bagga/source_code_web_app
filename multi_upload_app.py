@@ -57,7 +57,7 @@ def score_resumes_ranked():
     job_file.save(job_path)
     jd_text, jd_part = extract_text_and_part(job_path)
 
-    resume_files = request.files.getlist('resume')
+    resume_files = request.files.getlist('resumes')
     results = []
 
     for resume_file in resume_files:
