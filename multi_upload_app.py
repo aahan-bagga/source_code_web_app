@@ -9,6 +9,7 @@ import os
 import pathlib
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 CORS(app)
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -48,7 +49,7 @@ def extract_text_and_part(filepath):
 
 @app.route('/score_resumes_ranked', methods=['POST'])
 def score_resumes_ranked():
-    if 'resume' not in request.files or 'job' not in request.files:
+    if 'resumes' not in request.files or 'job' not in request.files:
         return jsonify({"error": "Missing files"}), 400
 
     job_file = request.files['job']
