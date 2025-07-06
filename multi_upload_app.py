@@ -42,7 +42,7 @@ def extract_text_and_part(filepath):
         text = "\n".join(page.get_text() for page in doc)
     elif ext == ".docx":
         text = extract_docx(filepath)
-        part = types.Part.from_text(text=text)
+        part = types.Part.from_text(text)
     else:
         raise ValueError("Unsupported file type")
     return text, part
