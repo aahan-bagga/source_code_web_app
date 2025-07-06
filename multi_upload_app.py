@@ -42,7 +42,7 @@ def extract_text_and_part(filepath):
         text = "\n".join(page.get_text() for page in doc)
     elif ext == ".docx":
         text = extract_docx(filepath)
-        part = types.Part.from_text(text)
+        part = types.Part(text=text)
     else:
         raise ValueError("Unsupported file type")
     return text, part
@@ -118,7 +118,7 @@ Include the SBERT similarity score for each candidate in your evaluation.
 Output in rank order (1 = best fit, 5 = worst fit).
 """
 
-    contents = [types.Part.from_text(prompt), jd_part]
+    contents = [types.Part(text=prompt), jd_part]
 
     for r in results:
         resume_blob = (
@@ -126,7 +126,7 @@ Output in rank order (1 = best fit, 5 = worst fit).
             f"SBERT Score: {r['sbert_score']}\n\n"
             f"{r['resume_text']}"
         )
-        contents.append(types.Part.from_text(resume_blob))
+        contents.append(types.Part(text=resume_blob))
 
     response = genai_client.models.generate_content(
         model="gemini-2.0-flash",
