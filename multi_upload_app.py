@@ -7,6 +7,7 @@ from docx import Document
 import fitz
 import os
 import pathlib
+import json
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
@@ -76,9 +77,9 @@ def score_resumes_ranked():
         })
 
     # === PROMPT ===
-    prompt = f"""
+    prompt = """
 You are TalentMatchAI, a hiring expert for tech roles in Indian IT services.
-You are given 5 resumes and a single job description. Your task is to **rank these resumes** from most to least suitable based on the following:
+You are given 5 resumes and a single job description. Your task is to return a valid JSON object that contains the ranking of these resumes from most to least suitable with the given job description based on the following:
 
 1. *Fitment Score (1–10)*  
    – Based on skills, experience, and qualifications match.
@@ -98,24 +99,14 @@ You are given 5 resumes and a single job description. Your task is to **rank the
    – Total years + domain and tools/tech used.
 
 5. *Skill Presence*  
-   – List key JD skills: ✔️ if present, ❌ if not.
+   – List key JD skills: YES if present, NO if not.
 
 6. *Suggested Domains* (if selected)  
    – 2–3 IT service domains (e.g., BFSI, E‑Commerce) with 1-line reasoning each.
 
-For each candidate, provide:
-
-1. Fitment Score (1–10)  
-2. Selection (✅ Selected or ❌ Rejected)  
-3. Rationale (1–2 lines)  
-4. Skill Gap Table:  
-| Skill | Required? | Present? | Depth |
-5. Experience Summary  
-6. Skill Presence  
-7. Suggested Domains
 
 Include the SBERT similarity score for each candidate in your evaluation.
-Output in rank order (1 = best fit, 5 = worst fit).
+Output in rank order (1 = best fit, 5 = worst fit) in your formatted JSON object and return ONLY THE JSON OBJECT, no other commentary or explanation.
 """
 
     contents = [types.Part(text=prompt), jd_part]
@@ -133,9 +124,15 @@ Output in rank order (1 = best fit, 5 = worst fit).
         contents=contents
     )
 
-    return jsonify({
-        "Ranking": response.text
-    })
+    try:
+        data = json.loads(response.text)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": "Invalid JSON from Gemini", "raw": response.text}), 500
+
+    #return jsonify({
+     #   "Ranking": response.text
+    #})
 
 @app.route('/')
 def home():
