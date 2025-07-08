@@ -8,6 +8,7 @@ import fitz
 import os
 import pathlib
 import json
+import re
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
@@ -105,6 +106,33 @@ You are given 5 resumes and a single job description. Your task is to return a v
    – 2–3 IT service domains (e.g., BFSI, E‑Commerce) with 1-line reasoning each.
 
 
+Each candidate should have their separate JSON object, here's what each should look like with the following structure:
+
+{
+  "Ranking": [
+    {
+      "name": string,
+      "sbert_score": float,
+      "fitment_score": int,
+      "selection": boolean,
+      "rationale": string,
+      "skill_gap_table": [
+        { "skill": string, "required": boolean, "present": boolean, "depth": string or null }
+      ],
+      "experience_summary": string,
+      "skill_presence": {
+        "Python": boolean,
+        "RESTful API": boolean,
+        ...
+      },
+      "suggested_domains": [string, string, string]
+    },
+    ...
+  ],
+  "Summary": string
+}
+
+
 Include the SBERT similarity score for each candidate in your evaluation.
 Output in rank order (1 = best fit, 5 = worst fit) in your formatted JSON object and return ONLY THE JSON OBJECT, no other commentary or explanation.
 """
@@ -124,11 +152,18 @@ Output in rank order (1 = best fit, 5 = worst fit) in your formatted JSON object
         contents=contents
     )
 
+    # Remove triple backticks and language hints like ```json
+    raw = response.text.strip()
+    raw = re.sub(r"^```(?:json)?|```$", "", raw, flags=re.MULTILINE).strip()        
+
     try:
-        data = json.loads(response.text)
+        data = json.loads(raw)
         return jsonify(data)
     except Exception as e:
-        return jsonify({"error": "Invalid JSON from Gemini", "raw": response.text}), 500
+        return jsonify({
+            "error": "Invalid JSON from Gemini",
+            "raw": raw,
+            "exception": str(e) }), 500
 
     #return jsonify({
      #   "Ranking": response.text
