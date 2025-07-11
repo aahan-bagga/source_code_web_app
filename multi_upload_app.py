@@ -9,6 +9,7 @@ import os
 import pathlib
 import json
 import re
+import pandas as pd
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
@@ -20,7 +21,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 model = SentenceTransformer("all-mpnet-base-v2")
 genai_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
-def extract_docx(filepath):
+def extract_docx(filepath): #separate DOCX parser
     doc = Document(filepath)
     text = []
     for para in doc.paragraphs:
@@ -36,7 +37,7 @@ def extract_docx(filepath):
             text.append(para.text)
     return "\n".join([t for t in text if t.strip() != ""])
 
-def extract_text_and_part(filepath):
+def extract_text_and_part(filepath): #convert pdf or docx to text for SBERT
     ext = pathlib.Path(filepath).suffix.lower()
     if ext == ".pdf":
         part = types.Part.from_bytes(data=pathlib.Path(filepath).read_bytes(), mime_type="application/pdf")
@@ -156,14 +157,41 @@ Output in rank order (1 = best fit, 5 = worst fit) in your formatted JSON object
     raw = response.text.strip()
     raw = re.sub(r"^```(?:json)?|```$", "", raw, flags=re.MULTILINE).strip()        
 
-    try:
+    try: #placing the ranking table in the summar section
         data = json.loads(raw)
+
+        # Format table from ranking data
+        rows = []
+        for idx, candidate in enumerate(data["Ranking"], start=1):
+            rows.append({
+                "Rank": idx,
+                "Candidate Name": candidate["name"],
+                "Fitment Score": f"{candidate['fitment_score']} / 10",
+                "Decision": "✅ Selected" if candidate["selection"] else "❌ Rejected",
+                "Notes": candidate["rationale"]
+            })
+
+        import pandas as pd
+        df = pd.DataFrame(rows)
+        html_table = df.to_html(index=False, classes="ranking-table", border=1) #conversion to HTML
+
+        # Inject the HTML table into the summary section
+        data["Summary"] = f"""
+        <div>
+            <h3>Ranked Candidates</h3>
+            {html_table}
+            <p><strong>Note:</strong> {data['Summary']}</p>
+        </div>
+        """
+
         return jsonify(data)
+
     except Exception as e:
         return jsonify({
             "error": "Invalid JSON from Gemini",
             "raw": raw,
-            "exception": str(e) }), 500
+            "exception": str(e)
+        }), 500
 
     #return jsonify({
      #   "Ranking": response.text
