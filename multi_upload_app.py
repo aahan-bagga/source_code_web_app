@@ -126,7 +126,9 @@ Each candidate should have their separate JSON object, here's what each should l
         "RESTful API": boolean,
         ...
       },
-      "suggested_domains": [string, string, string]
+      "suggested_domains": [string, string, string],
+      "filename": string,
+      "candidate_data_raw": string
     },
     ...
   ],
@@ -155,9 +157,9 @@ Output in rank order (1 = best fit, 5 = worst fit) in your formatted JSON object
 
     # Remove triple backticks and language hints like ```json
     raw = response.text.strip()
-    raw = re.sub(r"^```(?:json)?|```$", "", raw, flags=re.MULTILINE).strip()        
+    raw = re.sub(r"^```(?:json)?|```$", "", raw, flags=re.MULTILINE).strip()
 
-    try: #placing the ranking table in the summar section
+    try: #placing the ranking table in the summary section
         data = json.loads(raw)
 
         # Format table from ranking data
@@ -171,7 +173,6 @@ Output in rank order (1 = best fit, 5 = worst fit) in your formatted JSON object
                 "Notes": candidate["rationale"]
             })
 
-        import pandas as pd
         df = pd.DataFrame(rows)
         html_table = df.to_html(index=False, classes="ranking-table", border=1) #conversion to HTML
 
