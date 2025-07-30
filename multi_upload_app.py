@@ -127,8 +127,7 @@ Each candidate should have their separate JSON object, here's what each should l
         ...
       },
       "suggested_domains": [string, string, string],
-      "filename": string,
-      "candidate_data_raw": string
+      "resume_filename": string
     },
     ...
   ],
