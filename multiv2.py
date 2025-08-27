@@ -157,7 +157,7 @@ Output in rank order (1 = best fit, N = worst fit) in your formatted JSON object
     try:
         response = openai_client.chat.completions.create(
             model=GPT_MODEL,
-            temperature=0.1,
+            temperature=1,
             response_format={"type": "json_object"},
             messages=[
                 {
