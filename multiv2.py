@@ -82,7 +82,7 @@ def score_resumes_ranked():
     # === PROMPT ===
     prompt = """
 You are TalentMatchAI, a hiring expert for tech roles in Indian IT services.
-You are given N resumes and a single job description. Your task is to return a valid JSON object that contains the ranking of these resumes from most to least suitable with the given job description based on the following:
+You are given 5 resumes and a single job description. Your task is to return a valid JSON object that contains the ranking of these resumes from most to least suitable with the given job description based on the following:
 
 1. *Fitment Score (1–10)*  
    – Based on skills, experience, and qualifications match.
@@ -105,7 +105,7 @@ You are given N resumes and a single job description. Your task is to return a v
    – List key JD skills: YES if present, NO if not.
 
 6. *Suggested Domains* (if selected)  
-   – 2–3 IT service domains (e.g., BFSI, E-Commerce) with 1-line reasoning each.
+   – 2–3 IT service domains (e.g., BFSI, E‑Commerce) with 1-2 line reasoning each for why it was suggested.
 
 Each candidate should have their separate JSON object, here's what each should look like with the following structure:
     Ouptut the following for ONLY THE AMOUNT of candidates INPUTTED: Don't provide any NULL values.
@@ -127,13 +127,16 @@ Each candidate should have their separate JSON object, here's what each should l
         "RESTful API": boolean,
         ...
       },
-      "suggested_domains": [string, string, string],
+      "suggested_domains": [string, string, string]
       "resume_filename": string
     },
     ...
   ],
   "Summary": string
 }
+
+Include a thorough and concise one to two line explanation for why the suggested domain was chosen in the "suggested_domains" part of the JSON object based on the candidate's given details.
+Make sure to include these explanations right next to the domains you suggest for each in the "suggested_domains" part of JSON object.
 
 Include the SBERT similarity score for each candidate in your evaluation.
 Output in rank order (1 = best fit, N = worst fit) in your formatted JSON object and return ONLY THE JSON OBJECT, no other commentary or explanation.
