@@ -104,8 +104,8 @@ You are given 5 resumes and a single job description. Your task is to return a v
 5. *Skill Presence*  
    – List key JD skills: YES if present, NO if not.
 
-6. *Suggested Domains* (if selected)  
-   – 2–3 IT service domains (e.g., BFSI, E‑Commerce) with 1-2 line reasoning each for why it was suggested.
+6. *Suggested Domains*
+   – 2–3 IT service domains (e.g., BFSI, E‑Commerce) with a 1-2 line reasoning right after explaning why it was suggested. Don't skip the explanation.
 
 Each candidate should have their separate JSON object, here's what each should look like with the following structure:
     Ouptut the following for ONLY THE AMOUNT of candidates INPUTTED: Don't provide any NULL values.
