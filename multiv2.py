@@ -9,6 +9,7 @@ import pathlib
 import json
 import re
 import pandas as pd
+import textract
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
@@ -47,6 +48,9 @@ def extract_text_and_part(filepath): #convert pdf or docx to text for SBERT
     elif ext == ".docx":
         text = extract_docx(filepath)
         part = None
+    elif ext == "doc":
+        doc_doc = textract.process(filepath)
+        return raw.decode("utf-8", errors="ignore")
     else:
         raise ValueError("Unsupported file type")
     return text, part
