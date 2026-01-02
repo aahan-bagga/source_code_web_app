@@ -9,7 +9,6 @@ import pathlib
 import json
 import re
 import pandas as pd
-import textract
 import pypandoc
 
 app = Flask(__name__)
