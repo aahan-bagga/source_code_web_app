@@ -10,5 +10,4 @@ python-docx
 torch
 google-generativeai
 openai
-textract
 pypandoc
