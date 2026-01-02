@@ -38,23 +38,34 @@ def extract_docx(filepath): #separate DOCX parser
             text.append(para.text)
     return "\n".join([t for t in text if t.strip() != ""])
 
-def extract_text_and_part(filepath): #convert pdf or docx to text for SBERT
-    # Keeping the function name/signature the same; GPT doesn't need "part"
+def extract_text_and_part(filepath):
     ext = pathlib.Path(filepath).suffix.lower()
+    text = ""
+    
     if ext == ".pdf":
         doc = fitz.open(filepath)
         text = "\n".join(page.get_text() for page in doc)
-        part = None  # placeholder to keep code structure; unused for GPT
+    
     elif ext == ".docx":
         text = extract_docx(filepath)
-        part = None
-    elif ext == "doc":
-        doc_doc = textract.process(filepath)
-        return raw.decode("utf-8", errors="ignore")
+    
+    elif ext == ".doc":
+        try:
+            # Converts .doc to plain text using pandoc
+            text = pypandoc.convert_file(filepath, 'plain', format='doc')
+        except Exception as e:
+            # Fallback: sometimes .doc files are just renamed .rtf or .txt
+            try:
+                with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                    text = f.read()
+            except:
+                raise ValueError(f"Could not read .doc file: {e}")
+    
     else:
-        raise ValueError("Unsupported file type")
-    return text, part
-
+        raise ValueError(f"Unsupported file type: {ext}")
+    
+    return text, None # Returning None for 'part' as per your original structure
+    
 @app.route('/score_resumes_ranked', methods=['POST'])
 def score_resumes_ranked():
     if 'resumes' not in request.files or 'job' not in request.files:
