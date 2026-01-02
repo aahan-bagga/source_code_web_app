@@ -11,3 +11,4 @@ torch
 google-generativeai
 openai
 textract
+pypandoc
