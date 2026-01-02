@@ -10,6 +10,7 @@ import json
 import re
 import pandas as pd
 import textract
+import pypandoc
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
