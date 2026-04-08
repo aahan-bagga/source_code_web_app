@@ -20,7 +20,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 # Load SBERT model and OpenAI GPT client
 model = SentenceTransformer("all-mpnet-base-v2")
 openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-GPT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5-nano-2025-08-07")
+GPT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-nano")
 
 def extract_docx(filepath): #separate DOCX parser
     doc = Document(filepath)
