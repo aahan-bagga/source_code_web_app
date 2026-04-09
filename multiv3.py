@@ -21,7 +21,7 @@ model = SentenceTransformer("all-mpnet-base-v2")
 openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 # Use a stable model alias to avoid 404s on specific dated versions
-GPT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.4-nano")
+GPT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 
 def extract_docx(filepath):
     try:
