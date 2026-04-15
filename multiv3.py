@@ -1,14 +1,15 @@
+import os
+import json
+import pathlib
+
+import pandas as pd
+import werkzeug
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import OpenAI
-from sentence_transformers import SentenceTransformer, util
 from docx import Document
-import fitz
-import os
-import pathlib
-import json
-import pandas as pd
-import werkzeug # For secure filename handling
+from sentence_transformers import SentenceTransformer, util
+from openai import OpenAI
+import fitz  # PyMuPDF
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
@@ -23,6 +24,7 @@ openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 # Use a stable model alias to avoid 404s on specific dated versions
 GPT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 
+
 def extract_docx(filepath):
     try:
         doc = Document(filepath)
@@ -34,27 +36,39 @@ def extract_docx(filepath):
     except Exception as e:
         raise ValueError(f"DOCX extraction failed: {str(e)}")
 
+
 def extract_text_and_part(filepath):
     ext = pathlib.Path(filepath).suffix.lower()
-    
+
     if ext == ".pdf":
         doc = fitz.open(filepath)
         return "\n".join(page.get_text() for page in doc), None
-    
+
     elif ext == ".docx":
         return extract_docx(filepath), None
-    
+
     elif ext == ".doc" or ext == ".txt":
-        # Removed pypandoc dependency as it requires a system-level binary install
-        # Falling back to standard UTF-8 read which handles .txt and some .doc layouts
         try:
             with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
                 return f.read(), None
         except Exception as e:
             raise ValueError(f"Basic text extraction failed: {str(e)}")
-    
+
     else:
         raise ValueError(f"Unsupported file type: {ext}")
+
+
+# ── FIX: Root route so GET / returns 200 instead of 404 ──────────────────────
+@app.route('/')
+def index():
+    return jsonify({
+        "status": "ok",
+        "service": "xpredict",
+        "endpoints": {
+            "POST /score_resumes_ranked": "Upload resumes + job description to rank candidates"
+        }
+    }), 200
+
 
 @app.route('/score_resumes_ranked', methods=['POST'])
 def score_resumes_ranked():
@@ -67,9 +81,9 @@ def score_resumes_ranked():
         job_filename = werkzeug.utils.secure_filename(job_file.filename)
         job_path = os.path.join("/tmp", job_filename)
         job_file.save(job_path)
-        
+
         jd_text, _ = extract_text_and_part(job_path)
-        
+
         if not jd_text.strip():
             return jsonify({"error": "Job description file is empty or unreadable"}), 400
 
@@ -80,9 +94,9 @@ def score_resumes_ranked():
             res_filename = werkzeug.utils.secure_filename(resume_file.filename)
             resume_path = os.path.join("/tmp", res_filename)
             resume_file.save(resume_path)
-            
+
             resume_text, _ = extract_text_and_part(resume_path)
-            
+
             # Vector Similarity
             resume_vec = model.encode(resume_text, convert_to_tensor=True)
             jd_vec = model.encode(jd_text, convert_to_tensor=True)
@@ -95,10 +109,8 @@ def score_resumes_ranked():
             })
 
     except Exception as e:
-        # This captures the "Failed to process" errors specifically
         return jsonify({"error": "File processing failed", "details": str(e)}), 500
 
-    # === UPDATED PROMPT: Explicit JSON Schema to prevent parsing errors ===
     prompt = f"""
 You are TalentMatchAI, a hiring expert. Rank these {len(results)} resumes against the Job Description.
 Return ONLY a valid JSON object. 
@@ -138,7 +150,7 @@ Note: In 'suggested_domains', provide the reasoning INSIDE the object, not as a 
     try:
         response = openai_client.chat.completions.create(
             model=GPT_MODEL,
-            temperature=0.2, # Lower temperature for stricter JSON compliance
+            temperature=0.2,
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": "You are a recruitment AI that only outputs strict JSON."},
@@ -162,14 +174,19 @@ Note: In 'suggested_domains', provide the reasoning INSIDE the object, not as a 
 
         df = pd.DataFrame(rows)
         html_table = df.to_html(index=False, classes="ranking-table", border=1)
-        
+
         orig_summary = data.get("Summary", "")
         data["Summary"] = f"<div><h3>Ranked Candidates</h3>{html_table}<p>{orig_summary}</p></div>"
 
         return jsonify(data)
 
     except Exception as e:
-        return jsonify({"error": "AI Processing/Parsing failed", "details": str(e), "raw_response": raw if 'raw' in locals() else None}), 500
+        return jsonify({
+            "error": "AI Processing/Parsing failed",
+            "details": str(e),
+            "raw_response": raw if 'raw' in locals() else None
+        }), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
